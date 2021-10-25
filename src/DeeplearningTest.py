@@ -74,7 +74,7 @@ def main():
     ## array type float 로 변경
     datas = datas.astype(float)
 
-    ## 입력 데이터 다양화( x1^2, x2^2 ,  x1 * x2, sin(x1), sin(x2)
+    ############### 입력 데이터 다양화( x1^2, x2^2 ,  x1 * x2, sin(x1), sin(x2)
     datas_ex = []
     for i in datas:
         x1 = i[0]
@@ -83,8 +83,9 @@ def main():
 
     print(datas_ex)
 
+    ############################################################################
 
-    ## x 와 y 분리
+    ## x 와 x입력 다양화 합체 및 y 분리
     x_datas = datas[0:,0:2]
     x_datas_ex = np.concatenate((x_datas, datas_ex), axis=1)
 
@@ -95,7 +96,7 @@ def main():
 
 
 
-    #### 스케일링
+    ########## 스케일링 ##################################
     ## x, y 스케일링할 최소, 최대 지정
     x_scale_fix = [[0,0,0,0,0,-1,-1],[999,999,math.pow(999,2),math.pow(999,2),math.pow(999,2),1,1]]
     y_scale_fix = [[0],[999*999]]
@@ -112,9 +113,10 @@ def main():
     ## 스케일링 복구
     #inverse_datas = scaler.inverse_transform(datas)
 
+    ###############################################
 
 
-    ## train, test 데이터 나누기
+    ########## train, test 데이터 나누기 #############
     totalRowCount = len(x_scale_datas);
     trainRowCount=round(totalRowCount*train_per,0);
     testRowCount=totalRowCount-trainRowCount;
@@ -129,7 +131,7 @@ def main():
     y_testDatas = y_scale_datas[trainRowCount:]
 
 
-
+    ####################################################
 
 
     parameter = Parameter()
@@ -156,10 +158,12 @@ def main():
     deepLearning.model.fit(trainInputDatas,trainoutputDatas,epochs= parameter.epoch_arg
                          ,batch_size=parameter.batch_size,verbose=1)
 
-    #### 오차 확인
+    #### 테스트 데이터를 통한 오차확인
     test_result=deepLearning.model.evaluate(testInputDatas,testoutputDatas,batch_size=50)
 
     print(f'test result = {test_result}')
+
+
 
 
     #input_predict_datas = np.array(testDatas)
