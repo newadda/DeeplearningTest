@@ -1,9 +1,18 @@
+#############################################
+############# LSTM 테스트
+#############################################
+
 # 패키지
 # numpy tensorflow sklearn
 
+
+
+import os
 import csv
 import numpy as np
 import math
+import tensorflow as tf
+
 
 from tensorflow import keras
 from tensorflow.keras import layers
@@ -55,6 +64,46 @@ class DeepLearning:
         model.add(layers.Dense(output_count))
         model.compile(loss=loss,optimizer=optimizer)
         self.model = model
+
+
+######### 학습 콜백
+## logs['loss'] 손실값
+##
+class MyCallback(tf.keras.callbacks.Callback):
+    def __init__(self,name="callback"):
+        super().__init__()
+        self.previous_loss=10
+        self.name = name
+
+    def on_train_end(self, logs=None):
+        keys = list(logs.keys())
+        print("Stop training; got log keys: {}".format(keys))
+
+    def on_epoch_begin(self, epoch, logs=None):
+        print('\nFrom {}: Epoch {} is starting'.format(self.name, epoch + 1))
+
+    def on_epoch_end(self, epoch, logs=None):
+        loss=logs['loss']
+        print('\nFrom {}: Epoch {} ended.'.format(self.name, epoch + 1))
+
+
+        if epoch > 0:
+            if (logs['loss'] < self.previous_loss):
+                print('From {}: loss got better! {:.4f} -> {:.4f}'.format(self.name, self.previous_loss, logs['loss']))
+
+        self.previous_loss = logs['loss']
+
+    def on_train_batch_begin(self, batch, logs=None):
+        print('\nFrom {}: Batch {} is starting.'.format(self.name, batch + 1))
+
+    def on_train_batch_end(self, batch, logs=None):
+        print('\nFrom {}: Batch {} ended'.format(self.name, batch + 1))
+
+
+
+
+
+
 
 
 
@@ -157,13 +206,33 @@ def main():
     deepLearning = DeepLearning(parameter)
     deepLearning.createModel()
 
-    deepLearning.model.fit(trainInputDatas,trainoutputDatas,epochs= parameter.epoch_arg
-                         ,batch_size=parameter.batch_size,verbose=1)
 
-    #### 테스트 데이터를 통한 오차확인
-    test_result=deepLearning.model.evaluate(testInputDatas,testoutputDatas,batch_size=50)
+    ########## 학습하기
+    checkpoint_path = "../checkpoint/training_1/cp.ckpt"
+    #checkpoint_path = "../checkpoint/training_1/cp-{epoch:04d}.ckpt"
+    checkpoint_dir = os.path.dirname(checkpoint_path) # 체크포인트 파일이 위치하는 디렉토리
 
-    print(f'test result = {test_result}')
+    cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath= checkpoint_path,
+                                                     save_weights_only=True,
+                                                     period=50,
+                                                     verbose=1)
+
+    history = deepLearning.model.fit(trainInputDatas,trainoutputDatas,epochs= parameter.epoch_arg
+                         ,batch_size=parameter.batch_size,verbose=1,callbacks=[MyCallback(),cp_callback])
+
+    ########## 훈련 결과
+    #print('accuracy 정확성 = {0:.3f} ({0}) '.format(history.history['accuracy']))
+    #print('val_accuracy 정확성 = {0:.3f} ({0}) '.format(history.history['val_accuracy']))
+    #print('loss 손실값 = {0:.3f} ({0}) '.format(history.history['loss']))
+    #print('val_loss 손실값 = {0:.3f} ({0}) '.format(history.history['val_loss']))
+
+
+
+    #### 모델 평가
+    (loss)=deepLearning.model.evaluate(testInputDatas,testoutputDatas,batch_size=50,verbose=2,return_dict=True)
+
+    print(f'loss 손실값 = {loss}')
+    #print('acc 정확도 = {0:5.2f}% ({0})'.format(acc))
 
 
 
@@ -180,7 +249,7 @@ def main():
 
 
 
-    print(test_result)
+
 
 
 
