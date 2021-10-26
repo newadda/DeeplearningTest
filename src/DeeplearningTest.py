@@ -98,8 +98,10 @@ def main():
 
     ########## 스케일링 ##################################
     ## x, y 스케일링할 최소, 최대 지정
-    x_scale_fix = [[0,0,0,0,0,-1,-1],[999,999,math.pow(999,2),math.pow(999,2),math.pow(999,2),1,1]]
-    y_scale_fix = [[0],[999*999]]
+    MAX=1000
+    MIN=0
+    x_scale_fix = [[0,0,0,0,0,-1,-1],[MAX,MAX,math.pow(MAX,2),math.pow(MAX,2),math.pow(MAX,2),1,1]]
+    y_scale_fix = [[0],[MAX*MAX]]
 
     x_scaler = MinMaxScaler()
     x_scaler.fit(x_scale_fix)
@@ -133,7 +135,7 @@ def main():
 
     ####################################################
 
-
+    ############## 딥러닝 설정하기
     parameter = Parameter()
     parameter.algorithm='GRU' # 알고리즘 : 'LSTM',GRU
     parameter.loss='mae' # 손실함수명 : 'mae','mse','msle','mape','kld'
